@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヒーロー・レスキュー - 地震編</title>
+    <style>
+        /* 既存のスタイルに加えて */
+        #welcome-screen {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+        #welcome-screen h1 {
+            color: #4CAF50;
+        }
+        #game-container {
+            display: none; /* 最初は非表示 */
+        }
+    </style>
+</head>
+<body>
+    <div id="welcome-screen">
+        <h1>ヒーロー・レスキューへようこそ！</h1>
+        <p>このゲームでは、地震などの緊急時にどう行動するかを学び、ヒーローになって街を守ります！</p>
+        <p><strong>遊び方：</strong>画面の選択肢をクリックして、危険を見つけたり、正しい行動を選ぼう。KYTの4ステップ（見る→考える→決める→行動）を体験します。</p>
+        <p><strong>なぜ大切？：</strong>地震から身を守る方法を楽しく学んで、もしものときに備えよう！</p>
+        <button id="start-button" class="button">ゲームを始める</button>
+    </div>
+    <div id="points">ヒーローポイント: <span id="score">0</span></div>
+    <div id="game-container">
+        <!-- 既存のゲームコンテンツ -->
+    </div>
+
+    <script>
+        // 既存のスクリプトに加えて
+        document.getElementById("start-button").onclick = () => {
+            document.getElementById("welcome-screen").style.display = "none";
+            document.getElementById("game-container").style.display = "block";
+        };
+
+        // 既存のゲームロジック（updateGame, checkAnswerなど）はそのまま
+    </script>
+</body>
+</html>
