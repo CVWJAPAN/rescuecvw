@@ -2,48 +2,178 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewportammencontent="width=device-width, initial-scale=1.0">
     <title>ヒーロー・レスキュー - 地震編</title>
     <style>
-        /* 既存のスタイルに加えて */
-        #welcome-screen {
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
             max-width: 800px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            text-align: left;
         }
-        #welcome-screen h1 {
-            color: #4CAF50;
+        #scene-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
         }
-        #game-container {
-            display: none; /* 最初は非表示 */
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .option {
+            background-color: #008CBA;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            cursor: pointer;
+            color: white;
+        }
+        .option:hover {
+            background-color: #006d93;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        #points {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div id="welcome-screen">
-        <h1>ヒーロー・レスキューへようこそ！</h1>
-        <p>このゲームでは、地震などの緊急時にどう行動するかを学び、ヒーローになって街を守ります！</p>
-        <p><strong>遊び方：</strong>画面の選択肢をクリックして、危険を見つけたり、正しい行動を選ぼう。KYTの4ステップ（見る→考える→決める→行動）を体験します。</p>
-        <p><strong>なぜ大切？：</strong>地震から身を守る方法を楽しく学んで、もしものときに備えよう！</p>
-        <button id="start-button" class="button">ゲームを始める</button>
-    </div>
     <div id="points">ヒーローポイント: <span id="score">0</span></div>
     <div id="game-container">
-        <!-- 既存のゲームコンテンツ -->
+        <h1>ヒーロー・レスキュー - 地震編</h1>
+        <p id="game-text">教室で地震が起きた！どうする？ まずは状況を見てみよう。</p>
+        <img id="scene-image" src="https://via.placeholder.com/600x300?text=教室（地震）" alt="教室のシーン">
+        <div id="options"></div>
+        <div id="feedback"></div>
+        <button id="next-button" class="button" style="display: none;">次へ</button>
     </div>
 
     <script>
-        // 既存のスクリプトに加えて
-        document.getElementById("start-button").onclick = () => {
-            document.getElementById("welcome-screen").style.display = "none";
-            document.getElementById("game-container").style.display = "block";
+        let stage = 1; // 1: 現状把握, 2: 危険特定, 3: 対策検討, 4: 行動選択
+        let points = 0;
+        let correctAnswer = null;
+
+        const stages = {
+            1: {
+                text: "教室で地震が起きた！揺れているよ。どんな危険があるか探してみよう。",
+                image: "https://via.placeholder.com/600x300?text=教室（地震）",
+                options: [
+                    { text: "本棚が倒れそう", correct: true },
+                    { text: "机の上のお弁当", correct: false },
+                    { text: "窓ガラスが割れる", correct: true }
+                ],
+                feedback: {
+                    correct: "正しい！本棚や窓ガラスは地震で危険だよ。",
+                    incorrect: "それは危険じゃないかも。地震では倒れる物や割れる物に注意！"
+                }
+            },
+            2: {
+                text: "危険が分かった！次に、どうすれば安全か考えてみよう。",
+                image: "https://via.placeholder.com/600x300?text=教室（揺れている）",
+                options: [
+                    { text: "机の下に隠れる", correct: true },
+                    { text: "すぐに外に走る", correct: false },
+                    { text: "窓を開ける", correct: false }
+                ],
+                feedback: {
+                    correct: "その通り！机の下に隠れると頭を守れるよ。",
+                    incorrect: "それは危ないよ！地震のときはまず身の安全を確保しよう。"
+                }
+            },
+            3: {
+                text: "行動を選ぼう！地震が収まるまでどうする？",
+                image: "https://via.placeholder.com/600x300?text=教室（避難中）",
+                options: [
+                    { text: "机の下で頭を守る", correct: true },
+                    { text: "エレベーターで逃げる", correct: false },
+                    { text: "階段を走る", correct: false }
+                ],
+                feedback: {
+                    correct: "やった！頭を守って安全に待てた！ヒーローポイント+10！",
+                    incorrect: "危なかった！地震のときは慌てて動かず、頭を守ろう。"
+                }
+            }
         };
 
-        // 既存のゲームロジック（updateGame, checkAnswerなど）はそのまま
+        function updateGame() {
+            const currentStage = stages[stage];
+            document.getElementById("game-text").innerText = currentStage.text;
+            document.getElementById("scene-image").src = currentStage.image;
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("next-button").style.display = "none";
+
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            currentStage.options.forEach(option => {
+                const button = document.createElement("div");
+                button.className = "option";
+                button.innerText = option.text;
+%;">
+                button.onclick = () => checkAnswer(option.correct, currentStage.feedback);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(isCorrect, feedback) {
+            const feedbackDiv = document.getElementById("feedback");
+            feedbackDiv.innerText = isCorrect ? feedbackcorrect : feedback.incorrect;
+            if (isCorrect) {
+                points += stage === 3 ? 10 : 5;
+                document.getElementById("score").innerText = points;
+            }
+            document.getElementById("next-button").style.display = "block";
+            document.getElementById("options").innerHTML = "";
+        }
+
+        document.getElementById("next-button").onclick = () => {
+            stage++;
+            if (stage > 3) {
+                document.getElementById("game-text").innerText = "ミッションクリア！地震から身を守れたよ！";
+                document.getElementById("scene-image").src = "https://via.placeholder.com/600x300?text=安全！";
+                document.getElementById("options").innerHTML = "";
+                document.getElementById("feedback").innerText = `最終スコア: ${points}ポイント！もう一度遊ぶ？`;
+                document.getElementById("next-button").innerText = "リスタート";
+                document.getElementById("next-button").onclick = () => {
+                    stage = 1;
+                    points = 0;
+                    document.getElementById("score").innerText = points;
+                    document.getElementById("next-button").innerText = "次へ";
+                    updateGame();
+                };
+            } else {
+                updateGame();
+            }
+        };
+
+        // ゲーム開始
+        updateGame();
     </script>
 </body>
 </html>
