@@ -40,72 +40,148 @@
         .button:hover {
             background-color: #45a049;
         }
-        #map-image {
-            max-width: 100%;
-            height: auto;
-            margin: 10px 0;
+        .option {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
             cursor: pointer;
+            display: inline-block;
+        }
+        .option:hover {
+            background-color: #006d93;
         }
         #feedback {
             margin-top: 10px;
             font-size: 16px;
             color: #333;
         }
-        #map-link {
-            color: #008CBA;
-            text-decoration: none;
-            font-size: 16px;
-        }
-        #map-link:hover {
-            text-decoration: underline;
+        #points {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <div id="points">ヒーローポイント: <span id="score">0</span></div>
     <div id="welcome-screen">
         <h1>ヒーロー・レスキューへようこそ！</h1>
         <p>このゲームでは、地震などの緊急時にどう行動するかを学び、ヒーローになって街を守ります！</p>
-        <p><strong>遊び方：</strong>画面の指示に従って、危険を見つけるか、正しい行動を選びましょう。地図を使って安全な場所を確認できます。</p>
+        <p><strong>遊び方：</strong>質問を読んで、正しい選択肢を選んでね。危険な場所や安全な行動を学ぼう！</p>
         <p><strong>なぜ大切？：</strong>地震から身を守る方法を楽しく学んで、もしものときに備えよう！</p>
         <button id="start-button" class="button">ゲームを始める</button>
     </div>
     <div id="game-container">
         <h1>ヒーロー・レスキュー - 地震編</h1>
         <h2>地図編</h2>
-        <p>災害で危険なポイントをチェックする。まずは状況を見てみよう。</p>
-        <p><a id="map-link" href="javascript:void(0)" onclick="showMap()">防災マップを表示</a></p>
-        <img id="map-image" src="" alt="防災マップ" style="display: none;" onclick="checkDanger()">
+        <p id="game-text">災害で危険なポイントをチェックする。まずは状況を考えてみよう。</p>
+        <div id="options"></div>
         <div id="feedback"></div>
+        <button id="next-button" class="button" style="display: none;">次へ</button>
     </div>
 
     <script>
+        let stage = 1;
+        let points = 0;
+
+        const stages = {
+            1: {
+                text: "地震が起きた！地図を見ると、川の近くにいるよ。どんな危険があると思う？",
+                options: [
+                    { text: "津波が来るかもしれない", correct: true },
+                    { text: "太陽がまぶしい", correct: false },
+                    { text: "風が強い", correct: false }
+                ],
+                feedback: {
+                    correct: "正しい！川の近くは津波や洪水の危険があるよ。ヒーローポイント+5！",
+                    incorrect: "それは違うかも。川の近くでは津波や洪水に注意が必要だよ。"
+                }
+            },
+            2: {
+                text: "津波の危険があると分かった！安全な場所はどこだと思う？",
+                options: [
+                    { text: "高い丘の上", correct: true },
+                    { text: "川のそばの公園", correct: false },
+                    { text: "地下室", correct: false }
+                ],
+                feedback: {
+                    correct: "その通り！高い場所に避難するのが安全だよ。ヒーローポイント+5！",
+                    incorrect: "それは危ないよ！津波が来たら高い場所に逃げよう。"
+                }
+            },
+            3: {
+                text: "避難するときに気をつけることは？",
+                options: [
+                    { text: "急いで走る", correct: false },
+                    { text: "周りをよく見て落ち着いて行動する", correct: true },
+                    { text: "友達とおしゃべりしながら移動", correct: false }
+                ],
+                feedback: {
+                    correct: "やった！落ち着いて行動するのが大事だよ。ヒーローポイント+10！",
+                    incorrect: "それは危ないかも。避難するときは周りをよく見て、落ち着いて行動しよう。"
+                }
+            }
+        };
+
+        function updateGame() {
+            const currentStage = stages[stage];
+            document.getElementById("game-text").innerText = currentStage.text;
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("next-button").style.display = "none";
+
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            currentStage.options.forEach(option => {
+                const button = document.createElement("div");
+                button.className = "option";
+                button.innerText = option.text;
+                button.onclick = () => checkAnswer(option.correct, currentStage.feedback);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(isCorrect, feedback) {
+            const feedbackDiv = document.getElementById("feedback");
+            feedbackDiv.innerText = isCorrect ? feedback.correct : feedback.incorrect;
+            if (isCorrect) {
+                points += stage === 3 ? 10 : 5;
+                document.getElementById("score").innerText = points;
+            }
+            document.getElementById("next-button").style.display = "block";
+            document.getElementById("options").innerHTML = "";
+        }
+
         document.getElementById("start-button").onclick = () => {
             document.getElementById("welcome-screen").style.display = "none";
             document.getElementById("game-container").style.display = "block";
+            updateGame();
         };
 
-        function showMap() {
-            const mapImage = document.getElementById("map-image");
-            // 仮の防災マップ画像を表示（プレースホルダー）
-            mapImage.src = "https://via.placeholder.com/600x300?text=防災マップ（地震危険エリア：赤色、安全エリア：緑色）";
-            mapImage.style.display = "block";
-            document.getElementById("map-link").style.display = "none";
-            document.getElementById("feedback").innerText = "地図をクリックして、危険な場所か安全な場所か確認してみよう！";
-        }
-
-        function checkDanger() {
-            const feedback = document.getElementById("feedback");
-            const map = document.getElementById("map-image");
-            const clickX = event.offsetX;
-            // クリック位置で危険エリアを判定（左半分が危険エリア、右半分が安全エリア）
-            if (clickX < map.width / 2) {
-                feedback.innerText = "危険！このエリアは地震で揺れやすいよ。安全な場所に避難しよう！";
-                feedback.style.color = "#ff0000";
+        document.getElementById("next-button").onclick = () => {
+            stage++;
+            if (stage > 3) {
+                document.getElementById("game-text").innerText = "ミッションクリア！地震の危険から身を守れたよ！";
+                document.getElementById("options").innerHTML = "";
+                document.getElementById("feedback").innerText = `最終スコア: ${points}ポイント！もう一度遊ぶ？`;
+                document.getElementById("next-button").innerText = "もう一度遊ぶ";
+                document.getElementById("next-button").onclick = () => {
+                    stage = 1;
+                    points = 0;
+                    document.getElementById("score").innerText = points;
+                    document.getElementById("next-button").innerText = "次へ";
+                    updateGame();
+                };
             } else {
-                feedback.innerText = "安全！このエリアは比較的安全だよ。";
-                feedback.style.color = "#008000";
+                updateGame();
             }
-        }
+        };
+
+        // ゲーム開始
+        updateGame();
     </script>
 </body>
 </html>
