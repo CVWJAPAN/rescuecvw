@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ヒーロー・レズキュー - 地震編</title>
+    <title>ヒーロー・レスキュー - 地震編</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -40,28 +40,33 @@
         .button:hover {
             background-color: #45a049;
         }
-        a {
-            color: #008CBA;
-            text-decoration: none;
+        #map-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            cursor: pointer;
         }
-        a:hover {
-            text-decoration: underline;
+        #feedback {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <div id="welcome-screen">
-        <h1>ヒーロー・レズキューへようこそ！</h1>
+        <h1>ヒーロー・レスキューへようこそ！</h1>
         <p>このゲームでは、地震などの緊急時にどう行動するかを学び、ヒーローになって街を守ります！</p>
         <p><strong>遊び方：</strong>画面の指示に従って、危険を見つけるか、正しい行動を選びましょう。地図を使って安全な場所を確認できます。</p>
         <p><strong>なぜ大切？：</strong>地震から身を守る方法を楽しく学んで、もしものときに備えよう！</p>
         <button id="start-button" class="button">ゲームを始める</button>
     </div>
     <div id="game-container">
-        <h1>ヒーロー・レズキュー - 地震編</h1>
+        <h1>ヒーロー・レスキュー - 地震編</h1>
         <h2>地図編</h2>
         <p>災害で危険なポイントをチェックする。まずは状況を見てみよう。</p>
-        <p><a href="#">防災マップ</a></p>
+        <img id="map-image" src="https://via.placeholder.com/600x300?text=防災マップ（地震危険エリア）" alt="防災マップ" onclick="checkDanger()">
+        <div id="feedback"></div>
     </div>
 
     <script>
@@ -69,6 +74,20 @@
             document.getElementById("welcome-screen").style.display = "none";
             document.getElementById("game-container").style.display = "block";
         };
+
+        function checkDanger() {
+            const feedback = document.getElementById("feedback");
+            // クリックした場所で仮の危険ポイントを判定（例: 画像の左半分が危険エリア）
+            const map = document.getElementById("map-image");
+            const clickX = event.offsetX;
+            if (clickX < map.width / 2) {
+                feedback.innerText = "危険！このエリアは地震で揺れやすいよ。安全な場所に避難しよう！";
+                feedback.style.color = "#ff0000";
+            } else {
+                feedback.innerText = "安全！このエリアは比較的安全だよ。";
+                feedback.style.color = "#008000";
+            }
+        }
     </script>
 </body>
 </html>
