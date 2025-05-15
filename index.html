@@ -51,6 +51,14 @@
             font-size: 16px;
             color: #333;
         }
+        #map-link {
+            color: #008CBA;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        #map-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -65,7 +73,8 @@
         <h1>ヒーロー・レスキュー - 地震編</h1>
         <h2>地図編</h2>
         <p>災害で危険なポイントをチェックする。まずは状況を見てみよう。</p>
-        <img id="map-image" src="https://via.placeholder.com/600x300?text=防災マップ（地震危険エリア）" alt="防災マップ" onclick="checkDanger()">
+        <p><a id="map-link" href="javascript:void(0)" onclick="showMap()">防災マップを表示</a></p>
+        <img id="map-image" src="" alt="防災マップ" style="display: none;" onclick="checkDanger()">
         <div id="feedback"></div>
     </div>
 
@@ -75,11 +84,20 @@
             document.getElementById("game-container").style.display = "block";
         };
 
+        function showMap() {
+            const mapImage = document.getElementById("map-image");
+            // 仮の防災マップ画像を表示（プレースホルダー）
+            mapImage.src = "https://via.placeholder.com/600x300?text=防災マップ（地震危険エリア：赤色、安全エリア：緑色）";
+            mapImage.style.display = "block";
+            document.getElementById("map-link").style.display = "none";
+            document.getElementById("feedback").innerText = "地図をクリックして、危険な場所か安全な場所か確認してみよう！";
+        }
+
         function checkDanger() {
             const feedback = document.getElementById("feedback");
-            // クリックした場所で仮の危険ポイントを判定（例: 画像の左半分が危険エリア）
             const map = document.getElementById("map-image");
             const clickX = event.offsetX;
+            // クリック位置で危険エリアを判定（左半分が危険エリア、右半分が安全エリア）
             if (clickX < map.width / 2) {
                 feedback.innerText = "危険！このエリアは地震で揺れやすいよ。安全な場所に避難しよう！";
                 feedback.style.color = "#ff0000";
